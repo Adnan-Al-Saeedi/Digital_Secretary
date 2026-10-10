@@ -1544,6 +1544,67 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </button>
               </div>
 
+              {/* GitHub Pages & config.js Generator Helper */}
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div>
+                    <h4 className="text-xs sm:text-sm font-bold text-slate-900 font-display">
+                      إعداد النشر على GitHub Pages (ملف <code className="font-mono">config.js</code>)
+                    </h4>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      مضمّن تلقائياً في المشروع. وإذا كنت تستخدم مستودعاً خارجياً يطلب ملف <code className="font-mono">config.js</code>، ضع رابط خادم Apps Script (<code className="font-mono">/exec</code>) وحمّل الملف مباشرة:
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const serverUrl =
+                        (draftSettings.gasWebAppUrl || '').trim() ||
+                        'https://script.google.com/macros/s/AKfycbx-digital-secretary-academic-portal/exec';
+                      const jsContent = `/**
+ * ملف إعدادات السكرتير الرقمي (config.js)
+ */
+window.CONFIG = {
+  API_URL: "${serverUrl}",
+  GAS_WEB_APP_URL: "${serverUrl}",
+  SERVER_URL: "${serverUrl}",
+  WEB_APP_URL: "${serverUrl}",
+  SCRIPT_URL: "${serverUrl}",
+  UNIVERSITY: "${draftSettings.universityName}",
+  COLLEGE: "${draftSettings.collegeName}",
+  DEPARTMENT: "${draftSettings.departmentName}"
+};
+const CONFIG = window.CONFIG;
+`;
+                      const blob = new Blob([jsContent], { type: 'application/javascript;charset=utf-8' });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = 'config.js';
+                      document.body.appendChild(a);
+                      a.click();
+                      document.body.removeChild(a);
+                      URL.revokeObjectURL(url);
+                    }}
+                    className="min-h-[38px] px-3.5 py-1.5 rounded-xl bg-[#0F3D3E] hover:bg-[#0b2d2e] text-white text-xs font-bold flex items-center gap-1.5 whitespace-nowrap self-start sm:self-center cursor-pointer"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>تحميل ملف config.js جاهز</span>
+                  </button>
+                </div>
+
+                <input
+                  type="url"
+                  dir="ltr"
+                  value={draftSettings.gasWebAppUrl || ''}
+                  onChange={(e) =>
+                    setDraftSettings({ ...draftSettings, gasWebAppUrl: e.target.value })
+                  }
+                  placeholder="https://script.google.com/macros/s/.../exec (اختياري)"
+                  className="w-full min-h-[40px] px-3.5 py-1.5 rounded-xl border border-slate-300 bg-white text-xs font-mono text-left"
+                />
+              </div>
+
               {/* Interactive Student Registry Manager (Add, Edit, Delete, Import/Export CSV, Sync to Google Sheet) */}
               <StudentRegistryManager
                 students={studentRegistry}

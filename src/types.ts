@@ -71,6 +71,7 @@ export interface SystemSettings {
   departmentName: string;
   logoDataUrl: string;
   studentSheetUrl: string;
+  gasWebAppUrl?: string; // رابط خادم Google Apps Script Web App (/exec) عند النشر على GitHub Pages
   systemSpreadsheetId?: string;
   driveFolderId?: string;
   adminEmails: string[];
