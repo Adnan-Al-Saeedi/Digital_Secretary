@@ -1,0 +1,6 @@
+{
+  "name": "السكرتير الرقمي الأكاديمي",
+  "description": "بوابة رقمية موحدة للطلبة والشعبة الإدارية للاطلاع على الإعلانات الرسمية وتقديم المعاملات والطلبات الطلابية الخمسة وتوليد كتب PDF رسمية.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
