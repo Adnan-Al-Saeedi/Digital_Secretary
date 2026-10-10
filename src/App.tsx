@@ -34,25 +34,41 @@ export default function App() {
   // View routing: 'student' (Main 3-layer student portal) | 'schedule' (Public class schedule) | 'admin' (3-section admin dashboard)
   const [currentView, setCurrentView] = useState<'student' | 'schedule' | 'admin'>('student');
 
-  // Persistent System State
+  // Persistent System State (with safe JSON parsing to prevent white screen on corrupted storage)
   const [settings, setSettings] = useState<SystemSettings>(() => {
-    const saved = localStorage.getItem('sec_settings_v1');
-    return saved ? { ...DEFAULT_SYSTEM_SETTINGS, ...JSON.parse(saved) } : DEFAULT_SYSTEM_SETTINGS;
+    try {
+      const saved = localStorage.getItem('sec_settings_v1');
+      return saved ? { ...DEFAULT_SYSTEM_SETTINGS, ...JSON.parse(saved) } : DEFAULT_SYSTEM_SETTINGS;
+    } catch {
+      return DEFAULT_SYSTEM_SETTINGS;
+    }
   });
 
   const [announcements, setAnnouncements] = useState<AnnouncementItem[]>(() => {
-    const saved = localStorage.getItem('sec_announcements_v1');
-    return saved ? JSON.parse(saved) : INITIAL_ANNOUNCEMENTS;
+    try {
+      const saved = localStorage.getItem('sec_announcements_v1');
+      return saved ? JSON.parse(saved) : INITIAL_ANNOUNCEMENTS;
+    } catch {
+      return INITIAL_ANNOUNCEMENTS;
+    }
   });
 
   const [requests, setRequests] = useState<StudentRequestRecord[]>(() => {
-    const saved = localStorage.getItem('sec_requests_v1');
-    return saved ? JSON.parse(saved) : INITIAL_REQUESTS;
+    try {
+      const saved = localStorage.getItem('sec_requests_v1');
+      return saved ? JSON.parse(saved) : INITIAL_REQUESTS;
+    } catch {
+      return INITIAL_REQUESTS;
+    }
   });
 
   const [studentRegistry, setStudentRegistry] = useState<StudentRecord[]>(() => {
-    const saved = localStorage.getItem('sec_students_v1');
-    return saved ? JSON.parse(saved) : INITIAL_STUDENT_REGISTRY;
+    try {
+      const saved = localStorage.getItem('sec_students_v1');
+      return saved ? JSON.parse(saved) : INITIAL_STUDENT_REGISTRY;
+    } catch {
+      return INITIAL_STUDENT_REGISTRY;
+    }
   });
 
   // Google Auth State for Admin

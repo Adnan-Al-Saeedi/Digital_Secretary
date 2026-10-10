@@ -1,5 +1,5 @@
-import { initializeApp } from 'firebase/app';
-import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, User } from 'firebase/auth';
+import { initializeApp, FirebaseApp } from 'firebase/app';
+import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, User, Auth } from 'firebase/auth';
 import firebaseConfig from '../../firebase-applet-config.json';
 import { AcademicStage, StudentRecord, StudentRequestRecord, StudyType } from '../types';
 import { extractSpreadsheetId, normalizeArabicName, safeCell } from '../utils/arabicNormalize';
@@ -10,14 +10,23 @@ export const SCOPES = [
   'https://www.googleapis.com/auth/documents',
 ];
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+let app: FirebaseApp | null = null;
+let auth: Auth | null = null;
+let provider: GoogleAuthProvider | null = null;
 
-const provider = new GoogleAuthProvider();
-SCOPES.forEach((scope) => provider.addScope(scope));
-provider.setCustomParameters({
-  prompt: 'select_account',
-});
+try {
+  if (firebaseConfig && firebaseConfig.apiKey) {
+    app = initializeApp(firebaseConfig);
+    auth = getAuth(app);
+    provider = new GoogleAuthProvider();
+    SCOPES.forEach((scope) => provider?.addScope(scope));
+    provider.setCustomParameters({
+      prompt: 'select_account',
+    });
+  }
+} catch (err) {
+  console.warn('Firebase initialization skipped or failed:', err);
+}
 
 let isSigningIn = false;
 // Cache the access token strictly in memory per security guidelines
@@ -27,6 +36,10 @@ export const initAuth = (
   onAuthSuccess?: (user: User, token: string) => void,
   onAuthFailure?: () => void
 ) => {
+  if (!auth) {
+    if (onAuthFailure) onAuthFailure();
+    return () => {};
+  }
   return onAuthStateChanged(auth, async (user: User | null) => {
     if (user) {
       if (cachedAccessToken) {
@@ -43,6 +56,9 @@ export const initAuth = (
 };
 
 export const googleSignIn = async (): Promise<{ user: User; accessToken: string } | null> => {
+  if (!auth || !provider) {
+    throw new Error('لم يتم تهيئة خدمة مصادقة Google في هذه البيئة.');
+  }
   try {
     isSigningIn = true;
     const result = await signInWithPopup(auth, provider);
@@ -66,7 +82,9 @@ export const getAccessToken = (): string | null => {
 };
 
 export const logout = async () => {
-  await auth.signOut();
+  if (auth) {
+    await auth.signOut();
+  }
   cachedAccessToken = null;
 };
 
